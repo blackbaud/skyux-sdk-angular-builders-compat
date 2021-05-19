@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "ng-add": {
+      "description": "Add @skyux-sdk/angular-builders-compat to your project.",
+      "factory": "./src/schematics/ng-add/ng-add.schematic#ngAdd",
+      "schema": "./src/schematics/ng-add/schema.json"
+    }
+  }
+}
