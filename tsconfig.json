@@ -22,12 +22,7 @@
     "typeRoots": ["node_modules/@types"],
     "outDir": "./dist"
   },
-  "include": [
-    "index.ts",
-    "skyuxconfig-schema.json",
-    "src/**/*.json",
-    "src/builders/protractor/protractor.default.conf.ts"
-  ],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules"],
   "compileOnSave": false,
   "buildOnSave": false

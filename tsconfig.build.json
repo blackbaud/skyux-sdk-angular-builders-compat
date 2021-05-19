@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "index.ts",
+    "skyuxconfig-schema.json",
+    "src/**/*.json",
+    "src/builders/protractor/protractor.default.conf.ts"
+  ],
+  "exclude": ["node_modules"]
+}

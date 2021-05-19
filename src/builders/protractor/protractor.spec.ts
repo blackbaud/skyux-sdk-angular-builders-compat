@@ -30,6 +30,7 @@ describe('protractor builder', () => {
             project: 'foo'
           },
           logger: {
+            /* eslint-disable-next-line @typescript-eslint/no-empty-function */
             info() {}
           }
         })

@@ -44,24 +44,6 @@ describe('ci platform utils', () => {
     );
   });
 
-  it('should return Karma config', () => {
-    const { getCiPlatformKarmaConfig } = mock.reRequire('./ci-platform-utils');
-
-    globSyncSpy.and.returnValue(['valid-config-file.js']);
-
-    const contents = (_conf: karma.Config) => {};
-    mock('valid-config-file.js', contents);
-
-    const result = getCiPlatformKarmaConfig('gh-actions');
-    expect(result).toBe(contents);
-
-    expect(globSyncSpy.calls.mostRecent().args[0]).toContain(
-      path.join(
-        'node_modules/**/@skyux-sdk/pipeline-settings/platforms/gh-actions/karma/karma.angular-cli.conf.js'
-      )
-    );
-  });
-
   it('should handle invalid platform config keys', () => {
     const { getCiPlatformProtractorConfig } = mock.reRequire(
       './ci-platform-utils'

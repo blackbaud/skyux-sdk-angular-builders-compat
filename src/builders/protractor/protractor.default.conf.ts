@@ -51,8 +51,10 @@ function getConfig(): ProtractorConfig {
     jasmineNodeOpts: {
       showColors: true,
       defaultTimeoutInterval: 30000,
+      /* eslint-disable @typescript-eslint/no-empty-function */
       /* istanbul ignore next */
       print() {}
+      /* eslint-enable */
     },
     /* istanbul ignore next */
     onPrepare() {
