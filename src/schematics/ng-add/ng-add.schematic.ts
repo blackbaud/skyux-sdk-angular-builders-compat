@@ -1,15 +1,9 @@
-import { normalize, workspaces } from '@angular-devkit/core';
+import { workspaces } from '@angular-devkit/core';
 import {
-  apply,
-  applyTemplates,
-  MergeStrategy,
-  mergeWith,
-  move,
   Rule,
   SchematicContext,
   SchematicsException,
-  Tree,
-  url
+  Tree
 } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import {
@@ -30,7 +24,7 @@ async function modifyAngularJson(
   host: workspaces.WorkspaceHost
 ): Promise<void> {
   const angularJson = await readJson(host, 'angular.json');
-  for (const project of angularJson.projects) {
+  for (const project in angularJson.projects) {
     angularJson.projects[project].architect.lint = {
       builder: '@angular-devkit/build-angular:tslint',
       options: {
@@ -39,16 +33,36 @@ async function modifyAngularJson(
       }
     };
   }
+  await host.writeFile(
+    'angular.json',
+    JSON.stringify(angularJson, undefined, 2)
+  );
 }
 
-function createAppFiles(project: workspaces.ProjectDefinition): Rule {
-  const sourcePath = `${project!.sourceRoot}`;
-  const templateSource = apply(url('./files'), [
-    applyTemplates({}),
-    move(normalize(sourcePath))
-  ]);
+async function createAppFiles(host: WorkspaceHost, tree: Tree): Promise<void> {
+  const tslintExtends = '@skyux-sdk/angular-builders-compat/config/tslint';
 
-  return mergeWith(templateSource, MergeStrategy.Overwrite);
+  const tslintExists = await host.isFile('tslint.json');
+  if (tslintExists) {
+    let tslintContents = await host.readFile('tslint.json');
+    tslintContents = tslintContents.replace(
+      '"@skyux-sdk/builder/tslint"',
+      `"${tslintExtends}"`
+    );
+    await host.writeFile('tslint.json', tslintContents);
+    return;
+  }
+
+  tree.create(
+    'tslint.json',
+    JSON.stringify(
+      {
+        extends: tslintExtends
+      },
+      undefined,
+      2
+    )
+  );
 }
 
 export function ngAdd(options: SkyuxNgAddOptions): Rule {
@@ -85,6 +99,6 @@ export function ngAdd(options: SkyuxNgAddOptions): Rule {
 
     context.addTask(new NodePackageInstallTask());
 
-    return createAppFiles(project);
+    await createAppFiles(host, tree);
   };
 }

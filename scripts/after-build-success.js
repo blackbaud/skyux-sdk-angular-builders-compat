@@ -61,17 +61,6 @@ function mergeBuilderSchemas() {
   });
 }
 
-function copyDistToNodeModules() {
-  const distPath = path.join(process.cwd(), 'dist');
-  [
-    `../${TEST_APP_DIR}/node_modules/@skyux-sdk/angular-builders-compat`
-  ].forEach((destination) => {
-    fs.copySync(distPath, path.join(__dirname, destination));
-    console.log(`Successfully copied 'dist' to '${destination}/node_modules'.`);
-  });
-}
-
 cleanDist();
 copyFilesToDist();
 mergeBuilderSchemas();
-copyDistToNodeModules();
