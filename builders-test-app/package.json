@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "dev-setup": "ng add ./.skyux-sdk-angular-builders-dist"
   },
   "private": true,
   "dependencies": {
