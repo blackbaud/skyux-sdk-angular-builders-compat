@@ -32,9 +32,9 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
-      - uses: blackbaud/skyux-sdk-actions-setup-node@main
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.BLACKBAUD_NPM_TOKEN}}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
       - name: Install dependencies
         run: |
           npm i -g @angular/cli@12 @skyux-sdk/cli
