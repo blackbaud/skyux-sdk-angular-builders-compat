@@ -5,7 +5,7 @@ import {
 
 import path from 'path';
 
-import { createTestApp } from '../testing/scaffold';
+import { createTestApp, createTestLibrary } from '../testing/scaffold';
 
 const COLLECTION_PATH = path.resolve(__dirname, '../../../collection.json');
 
@@ -26,10 +26,6 @@ describe('ng-add.schematic', () => {
   function getAngularJson(app: UnitTestTree): any {
     return JSON.parse(app.readContent('angular.json'));
   }
-
-  // function writeAngularJson(app: UnitTestTree, content: any) {
-  //   app.overwrite('angular.json', JSON.stringify(content));
-  // }
 
   describe('> Application as default project >', () => {
     let app: UnitTestTree;
@@ -130,117 +126,50 @@ describe('ng-add.schematic', () => {
         })
       );
     });
-
-    // it('should add packages to package.json files without dependency sections', async () => {
-    //   // Create an empty package.json file.
-    //   app.overwrite('package.json', JSON.stringify({}));
-
-    //   await runSchematic(app, {
-    //     project: 'foobar'
-    //   });
-
-    //   const packageJson = JSON.parse(app.readContent('package.json'));
-    //   expect(packageJson.dependencies).toBeDefined();
-    //   expect(packageJson.devDependencies).toBeDefined();
-    // });
   });
 
-  // describe('> Library as default project >', () => {
-  //   let defaultProjectName: string;
-  //   let tree: UnitTestTree;
+  describe('> Library as default project >', () => {
+    let defaultProjectName: string;
+    let tree: UnitTestTree;
 
-  //   beforeEach(async () => {
-  //     defaultProjectName = 'foo-lib';
-  //     tree = (
-  //       await createTestLibrary(runner, {
-  //         defaultProjectName
-  //       })
-  //     ).appTree;
-  //   });
+    beforeEach(async () => {
+      defaultProjectName = 'foo-lib';
+      tree = (
+        await createTestLibrary(runner, {
+          defaultProjectName
+        })
+      ).appTree;
+    });
 
-  //   it('should run the NodePackageInstallTask', async () => {
-  //     await runSchematic(tree, {
-  //       project: defaultProjectName
-  //     });
+    it('should modify angular.json', async () => {
+      await runSchematic(tree, {
+        project: defaultProjectName
+      });
 
-  //     expect(runner.tasks.some((task) => task.name === 'node-package')).toEqual(
-  //       true,
-  //       'Expected the schematic to setup a package install step.'
-  //     );
-  //   });
+      const angularJson = getAngularJson(tree);
+      expect(angularJson.projects[defaultProjectName].architect.lint).toEqual({
+        builder: '@angular-devkit/build-angular:tslint',
+        options: {
+          tsConfig: [
+            'projects/foo-lib/tsconfig.lib.json',
+            'projects/foo-lib/tsconfig.spec.json'
+          ],
+          exclude: ['**/node_modules/**']
+        }
+      });
 
-  //   it('should generate an empty skyuxconfig.json file', async () => {
-  //     await runSchematic(tree, {
-  //       project: defaultProjectName
-  //     });
-
-  //     const skyuxconfigJson = JSON.parse(tree.readContent('skyuxconfig.json'));
-  //     expect(skyuxconfigJson).toEqual({
-  //       $schema:
-  //         './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json'
-  //     });
-  //   });
-
-  //   it('should modify angular.json', async () => {
-  //     await runSchematic(tree, {
-  //       project: defaultProjectName
-  //     });
-
-  //     const angularJson = getAngularJson(tree);
-  //     const testConfig =
-  //       angularJson.projects[defaultProjectName].architect.test;
-  //     expect(testConfig.builder).toEqual(
-  //       '@blackbaud-internal/skyux-angular-builders:karma'
-  //     );
-  //     expect(testConfig.options.codeCoverage).toEqual(true);
-  //   });
-
-  //   it("should modify the app's karma.conf.js file", async () => {
-  //     await runSchematic(tree, {
-  //       project: defaultProjectName
-  //     });
-
-  //     const contents = tree
-  //       .read(`projects/${defaultProjectName}/karma.conf.js`)
-  //       ?.toString();
-  //     expect(contents).toContain('DO NOT MODIFY');
-  //   });
-
-  //   it("should throw an error if specified project doesn't include an `architect.test` property", async () => {
-  //     // Create an incorrectly formatted project config.
-  //     const angularJson = getAngularJson(tree);
-  //     delete angularJson.projects[defaultProjectName].architect.test;
-  //     writeAngularJson(tree, angularJson);
-
-  //     await expectAsync(
-  //       runSchematic(tree, {
-  //         project: defaultProjectName
-  //       })
-  //     ).toBeRejectedWithError(
-  //       `Expected node projects/${defaultProjectName}/architect/test in angular.json!`
-  //     );
-  //   });
-
-  //   it('should add packages to package.json', async () => {
-  //     await runSchematic(tree, {
-  //       project: defaultProjectName
-  //     });
-
-  //     const packageJson = JSON.parse(tree.readContent('package.json'));
-  //     expect(packageJson.dependencies).toEqual(
-  //       jasmine.objectContaining({
-  //         '@skyux/assets': '^4.0.0',
-  //         '@skyux/config': '^4.4.0',
-  //         '@skyux/core': '^4.4.0',
-  //         '@skyux/i18n': '^4.0.3',
-  //         '@skyux/theme': '^5.0.0-alpha.0'
-  //       })
-  //     );
-  //     expect(packageJson.devDependencies).toEqual(
-  //       jasmine.objectContaining({
-  //         '@skyux-sdk/testing': '^4.0.0'
-  //       })
-  //     );
-  //   });
-  // });
+      expect(
+        angularJson.projects[`${defaultProjectName}-showcase`].architect.lint
+      ).toEqual({
+        builder: '@angular-devkit/build-angular:tslint',
+        options: {
+          tsConfig: [
+            'projects/foo-lib-showcase/tsconfig.app.json',
+            'projects/foo-lib-showcase/tsconfig.spec.json'
+          ],
+          exclude: ['**/node_modules/**']
+        }
+      });
+    });
+  });
 });

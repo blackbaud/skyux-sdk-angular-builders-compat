@@ -71,6 +71,17 @@ export async function createTestLibrary(
     )
     .toPromise();
 
+  await runner
+    .runExternalSchematicAsync(
+      '@schematics/angular',
+      'application',
+      {
+        name: `${appOptions.defaultProjectName}-showcase`
+      },
+      workspaceTree
+    )
+    .toPromise();
+
   return {
     appTree,
     workspaceTree
