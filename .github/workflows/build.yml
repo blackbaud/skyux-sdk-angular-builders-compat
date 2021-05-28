@@ -24,7 +24,7 @@ jobs:
           npx prettier --check .
       - name: Run code coverage
         run: |
-          npm run ci
+          npm test
           bash <(curl -s https://codecov.io/bash)
   e2e-app:
     runs-on: ubuntu-latest
