@@ -8,10 +8,12 @@ const argv = minimist(process.argv.slice(2));
 
 // Pass `--test-app-directory=my-dir` to change the testing application directory.
 const TEST_APP_DIR = argv['test-app-directory'] || 'builders-test-app';
+const TEST_LIB_DIR = argv['test-lib-directory'] || 'builders-test-lib';
 const TEST_DIST = '.skyux-sdk-angular-builders-dist';
 
 function cleanDist() {
   rimraf.sync(path.join(TEST_APP_DIR, TEST_DIST));
+  rimraf.sync(path.join(TEST_LIB_DIR, TEST_DIST));
 }
 
 function copyFilesToDist() {
@@ -21,7 +23,6 @@ function copyFilesToDist() {
     ['package.json'],
     ['builders.json'],
     ['collection.json']
-    // ['src/schematics/ng-add/files']
   ];
 
   pathsToCopy.forEach((pathArr) => {
@@ -36,6 +37,7 @@ function copyFilesToDist() {
   });
 
   fs.copySync('dist', path.join(TEST_APP_DIR, TEST_DIST));
+  fs.copySync('dist', path.join(TEST_LIB_DIR, TEST_DIST));
 }
 
 function mergeBuilderSchemas() {
