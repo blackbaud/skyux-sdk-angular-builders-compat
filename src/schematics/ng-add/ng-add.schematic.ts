@@ -243,45 +243,7 @@
 //     createSkyuxConfigIfNotExists(tree);
 //     await modifyAngularJson(host, context, options);
 //     await modifyTsConfig(host);
-//     await modifyKarmaConfig(host, project.root);
 //     await modifyProtractorConfig(host, project.root);
-//     await modifyAppComponentTemplate(host);
-//     await modifyPolyfills(host);
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@blackbaud/auth-client',
-//       version: '^2.46.0',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@blackbaud/help-client',
-//       version: '^3.0.0',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@blackbaud/skyux-lib-help',
-//       version: '^4.0.0',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@blackbaud-internal/skyux-auth',
-//       version: '^4.0.0-alpha.2',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@skyux/assets',
-//       version: '^4.0.0',
-//       overwrite: true
-//     });
 
 //     addPackageJsonDependency(tree, {
 //       type: NodeDependencyType.Default,
@@ -291,50 +253,8 @@
 //     });
 
 //     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@skyux/core',
-//       version: '^4.4.0',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@skyux/http',
-//       version: '^4.2.0',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@skyux/i18n',
-//       version: '^4.0.3',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@skyux/omnibar-interop',
-//       version: '^4.0.1',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@skyux/theme',
-//       version: '^4.15.3',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
 //       type: NodeDependencyType.Dev,
 //       name: '@skyux-sdk/e2e',
-//       version: '^4.0.0',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Dev,
-//       name: '@skyux-sdk/testing',
 //       version: '^4.0.0',
 //       overwrite: true
 //     });

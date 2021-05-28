@@ -13,13 +13,13 @@
     "save": "devDependencies"
   },
   "scripts": {
-    "build": "npm run clean && npm run lint && tsc -p tsconfig.json",
+    "build": "npm run clean && npm run lint && tsc -p tsconfig.build.json",
     "postbuild": "node ./scripts/after-build-success.js",
     "clean": "rimraf dist",
     "e2e": "node ./scripts/e2e.js",
     "lint": "eslint src --ext .ts",
     "format-all": "npx prettier --write .",
-    "start": "npm run clean && tsc-watch -p tsconfig.json --onSuccess \"npm run postbuild\"",
+    "start": "npm run clean && tsc-watch -p tsconfig.build.json --onSuccess \"npm run postbuild\"",
     "test": "nyc npm run test:unit",
     "test:unit": "npm run lint && ts-node --project tsconfig.test.json node_modules/jasmine/bin/jasmine.js --config=jasmine.json"
   },
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "12.0.0",
+    "@angular-devkit/schematics": "12.0.0",
     "@angular/compiler": "12.0.1",
     "@angular/compiler-cli": "12.0.1",
     "@types/cross-spawn": "6.0.2",
