@@ -1,4 +1,5 @@
 import { workspaces } from '@angular-devkit/core';
+import { WorkspaceHost } from '@angular-devkit/core/src/workspace';
 import {
   Rule,
   SchematicContext,
@@ -10,9 +11,9 @@ import {
   addPackageJsonDependency,
   NodeDependencyType
 } from '@schematics/angular/utility/dependencies';
-import { WorkspaceHost } from '@angular-devkit/core/src/workspace';
 
 import { createHost } from '../utils/schematics-utils';
+
 import { SkyuxNgAddOptions } from './schema';
 
 async function readJson(host: WorkspaceHost, filePath: string): Promise<any> {
