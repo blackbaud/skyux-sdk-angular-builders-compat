@@ -1,0 +1,3 @@
+{
+  "extends": "@skyux-sdk/angular-builders-compat/config/tslint"
+}
