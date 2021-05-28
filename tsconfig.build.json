@@ -4,7 +4,7 @@
     "index.ts",
     "skyuxconfig-schema.json",
     "src/**/*.json",
-    "src/builders/protractor/protractor.default.conf.ts"
+    "config/**/*.json"
   ],
   "exclude": ["node_modules"]
 }

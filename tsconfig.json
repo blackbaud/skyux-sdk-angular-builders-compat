@@ -22,7 +22,7 @@
     "typeRoots": ["node_modules/@types"],
     "outDir": "./dist"
   },
-  "include": ["**/*.ts"],
+  "include": ["index.ts", "src/**/*.ts"],
   "exclude": ["node_modules"],
   "compileOnSave": false,
   "buildOnSave": false

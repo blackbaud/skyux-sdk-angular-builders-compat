@@ -1,266 +1,90 @@
-// import { OutputHashing } from '@angular-devkit/build-angular';
-// import { normalize, workspaces } from '@angular-devkit/core';
-// import {
-//   apply,
-//   applyTemplates,
-//   forEach,
-//   MergeStrategy,
-//   mergeWith,
-//   move,
-//   Rule,
-//   SchematicContext,
-//   SchematicsException,
-//   Tree,
-//   url
-// } from '@angular-devkit/schematics';
-// import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
-// import {
-//   addPackageJsonDependency,
-//   NodeDependencyType
-// } from '@schematics/angular/utility/dependencies';
+import { normalize, workspaces } from '@angular-devkit/core';
+import {
+  apply,
+  applyTemplates,
+  MergeStrategy,
+  mergeWith,
+  move,
+  Rule,
+  SchematicContext,
+  SchematicsException,
+  Tree,
+  url
+} from '@angular-devkit/schematics';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
+import {
+  addPackageJsonDependency,
+  NodeDependencyType
+} from '@schematics/angular/utility/dependencies';
+import { WorkspaceHost } from '@angular-devkit/core/src/workspace';
 
-// import { SkyuxDevServerBuilderOptions } from '../../builders/dev-server/dev-server-options';
-// import { SkyuxConfig } from '../../shared/skyux-config';
-// import {
-//   addModuleImportToRootModule,
-//   createHost
-// } from '../utils/schematics-utils';
+import { createHost } from '../utils/schematics-utils';
+import { SkyuxNgAddOptions } from './schema';
 
-// import { SkyuxNgAddOptions } from './schema';
-// import { addToLibrary } from './utils/add-to-library';
-// import { createSkyuxConfigIfNotExists } from './utils/create-skyuxconfig';
-// import { modifyKarmaConfig } from './utils/modify-karma-config';
-// import { modifyPolyfills } from './utils/modify-polyfills';
-// import { readJson } from './utils/read-json';
+async function readJson(host: WorkspaceHost, filePath: string): Promise<any> {
+  const contents = await host.readFile(filePath);
+  return JSON.parse(contents);
+}
 
-// async function getThemeStylesheets(
-//   host: workspaces.WorkspaceHost
-// ): Promise<string[]> {
-//   const themeStylesheets = ['@skyux/theme/css/sky.css'];
+async function modifyAngularJson(
+  host: workspaces.WorkspaceHost
+): Promise<void> {
+  const angularJson = await readJson(host, 'angular.json');
+  for (const project of angularJson.projects) {
+    angularJson.projects[project].architect.lint = {
+      builder: '@angular-devkit/build-angular:tslint',
+      options: {
+        tsConfig: ['tsconfig.app.json', 'tsconfig.spec.json'],
+        exclude: ['**/node_modules/**']
+      }
+    };
+  }
+}
 
-//   const skyuxConfig: SkyuxConfig = await readJson(host, 'skyuxconfig.json');
-//   if (skyuxConfig.app?.theming?.supportedThemes) {
-//     for (const theme of skyuxConfig.app.theming.supportedThemes) {
-//       if (theme !== 'default') {
-//         themeStylesheets.push(`@skyux/theme/css/themes/${theme}/styles.css`);
-//       }
-//     }
-//   }
+function createAppFiles(project: workspaces.ProjectDefinition): Rule {
+  const sourcePath = `${project!.sourceRoot}`;
+  const templateSource = apply(url('./files'), [
+    applyTemplates({}),
+    move(normalize(sourcePath))
+  ]);
 
-//   return themeStylesheets;
-// }
+  return mergeWith(templateSource, MergeStrategy.Overwrite);
+}
 
-// async function modifyAngularJson(
-//   host: workspaces.WorkspaceHost,
-//   context: SchematicContext,
-//   options: SkyuxNgAddOptions
-// ): Promise<void> {
-//   const projectName = options.project;
-//   const angularJson = await readJson(host, 'angular.json');
+export function ngAdd(options: SkyuxNgAddOptions): Rule {
+  return async (tree: Tree, context: SchematicContext) => {
+    const host = createHost(tree);
+    const { workspace } = await workspaces.readWorkspace('/', host);
 
-//   const architectConfig = angularJson.projects[projectName].architect;
-//   if (!architectConfig) {
-//     throw new SchematicsException(
-//       `Expected node projects/${projectName}/architect in angular.json!`
-//     );
-//   }
+    if (!options.project) {
+      options.project = workspace.extensions.defaultProject as string;
+    }
 
-//   if (architectConfig.build) {
-//     architectConfig.build.builder =
-//       '@blackbaud-internal/skyux-angular-builders:browser';
-//     // Configure Angular to only hash bundled JavaScript files.
-//     // Our builder will handle hashing the file names found in `src/assets`.
-//     architectConfig.build.configurations!.production!.outputHashing! =
-//       OutputHashing.Bundles;
-//   } else {
-//     throw new SchematicsException(
-//       `Expected node projects/${projectName}/architect/build in angular.json!`
-//     );
-//   }
+    const project = workspace.projects.get(options.project);
+    if (!project) {
+      throw new SchematicsException(
+        `The "${options.project}" project is not defined in angular.json. Provide a valid project name.`
+      );
+    }
 
-//   if (architectConfig.serve) {
-//     architectConfig.serve.builder =
-//       '@blackbaud-internal/skyux-angular-builders:dev-server';
-//     architectConfig.serve.options = architectConfig.serve.options || {};
-//     architectConfig.serve.options.ssl = true;
-//   } else {
-//     throw new SchematicsException(
-//       `Expected node projects/${projectName}/architect/serve in angular.json!`
-//     );
-//   }
+    await modifyAngularJson(host);
 
-//   if (architectConfig.e2e) {
-//     architectConfig.e2e.builder =
-//       '@blackbaud-internal/skyux-angular-builders:protractor';
-//     architectConfig.e2e.options!.devServerTarget = `${projectName}:serve:e2e`;
-//     architectConfig.serve.configurations!.e2e = {
-//       browserTarget: `${projectName}:build`,
-//       servePath: '/',
-//       skyuxOpen: false
-//     } as SkyuxDevServerBuilderOptions;
-//   } else {
-//     context.logger.warn(
-//       `[skyux] Skipping e2e setup since the expected node "projects/${projectName}/architect/e2e" was not found in angular.json.`
-//     );
-//   }
+    addPackageJsonDependency(tree, {
+      type: NodeDependencyType.Dev,
+      name: 'tslint',
+      version: '~6.1.0',
+      overwrite: true
+    });
 
-//   if (architectConfig.test) {
-//     architectConfig.test.builder =
-//       '@blackbaud-internal/skyux-angular-builders:karma';
-//     architectConfig.test.options!.codeCoverage = true;
+    addPackageJsonDependency(tree, {
+      type: NodeDependencyType.Dev,
+      name: 'codelyzer',
+      version: '^6.0.0',
+      overwrite: true
+    });
 
-//     // Exclude our generated files from the consumers' code coverage.
-//     architectConfig.test.options!.codeCoverageExclude = [
-//       'src/app/__skyux/**/*'
-//     ];
-//   } else {
-//     throw new SchematicsException(
-//       `Expected node projects/${projectName}/architect/test in angular.json!`
-//     );
-//   }
+    context.addTask(new NodePackageInstallTask());
 
-//   // Add theme stylesheets.
-//   const angularStylesheets = architectConfig.build.options.styles.filter(
-//     (stylesheet: string) => !stylesheet.startsWith('@skyux/theme')
-//   );
-//   const themeStylesheets = await getThemeStylesheets(host);
-//   architectConfig.build.options.styles =
-//     themeStylesheets.concat(angularStylesheets);
-
-//   await host.writeFile(
-//     'angular.json',
-//     JSON.stringify(angularJson, undefined, 2) + '\n'
-//   );
-// }
-
-// async function modifyProtractorConfig(
-//   host: workspaces.WorkspaceHost,
-//   projectRoot: string
-// ): Promise<void> {
-//   await host.writeFile(
-//     `${projectRoot}/e2e/protractor.conf.js`,
-//     `// DO NOT MODIFY
-// // This file is handled by the '@blackbaud-internal/skyux-angular-builders' library.
-// exports.config = {};
-// `
-//   );
-// }
-
-// async function modifyTsConfig(host: workspaces.WorkspaceHost): Promise<void> {
-//   const tsConfigContents = await host.readFile('tsconfig.json');
-//   // JavaScript has difficulty parsing JSON with comments.
-//   const banner =
-//     '/* To learn more about this file see: https://angular.io/config/tsconfig. */\n';
-//   const tsConfig = JSON.parse(tsConfigContents.replace(banner, ''));
-//   tsConfig.compilerOptions.resolveJsonModule = true;
-//   tsConfig.compilerOptions.esModuleInterop = true;
-
-//   // Enforce the ES5 target until we can drop support for IE 11.
-//   tsConfig.compilerOptions.target = 'es5';
-
-//   await host.writeFile(
-//     'tsconfig.json',
-//     banner + JSON.stringify(tsConfig, undefined, 2)
-//   );
-// }
-
-// async function modifyAppComponentTemplate(
-//   host: workspaces.WorkspaceHost
-// ): Promise<void> {
-//   const templatePath = 'src/app/app.component.html';
-
-//   let templateHtml = await host.readFile(templatePath);
-
-//   if (templateHtml.indexOf('</skyux-app-shell>') < 0) {
-//     // Indent all non-blank lines by 2 spaces and wrap the contents in the shell component
-//     // with a trailing newline.
-//     templateHtml = `<!-- SKY UX SHELL SUPPORT - DO NOT REMOVE -->
-// <!-- Enables omnibar, help, and other shell components configured in skyuxconfig.json. -->
-// <skyux-app-shell>
-//   ${templateHtml.trim().replace(/\n(?!(\n|$))/g, '\n  ')}
-// </skyux-app-shell>
-// `;
-
-//     await host.writeFile(templatePath, templateHtml);
-//   }
-// }
-
-// /**
-//  * Fixes an Angular CLI issue with merge strategies.
-//  * @see https://github.com/angular/angular-cli/issues/11337#issuecomment-516543220
-//  */
-// function overwriteIfExists(tree: Tree): Rule {
-//   return forEach((fileEntry) => {
-//     if (tree.exists(fileEntry.path)) {
-//       tree.overwrite(fileEntry.path, fileEntry.content);
-//       return null;
-//     }
-//     return fileEntry;
-//   });
-// }
-
-// function createAppFiles(
-//   tree: Tree,
-//   project: workspaces.ProjectDefinition
-// ): Rule {
-//   addModuleImportToRootModule(
-//     tree,
-//     'SkyuxModule.forRoot()',
-//     './__skyux/skyux.module'
-//   );
-
-//   const sourcePath = `${project!.sourceRoot}/app`;
-//   const templateSource = apply(url('./files'), [
-//     applyTemplates({}),
-//     move(normalize(sourcePath)),
-//     overwriteIfExists(tree)
-//   ]);
-
-//   return mergeWith(templateSource, MergeStrategy.Overwrite);
-// }
-
-// export function ngAdd(options: SkyuxNgAddOptions): Rule {
-//   return async (tree: Tree, context: SchematicContext) => {
-//     const host = createHost(tree);
-//     const { workspace } = await workspaces.readWorkspace('/', host);
-
-//     if (!options.project) {
-//       options.project = workspace.extensions.defaultProject as string;
-//     }
-
-//     const project = workspace.projects.get(options.project);
-//     if (!project) {
-//       throw new SchematicsException(
-//         `The "${options.project}" project is not defined in angular.json. Provide a valid project name.`
-//       );
-//     }
-
-//     // Libraries require a different setup.
-//     if (project.extensions.projectType === 'library') {
-//       return addToLibrary(tree, host, workspace, context, options);
-//     }
-
-//     createSkyuxConfigIfNotExists(tree);
-//     await modifyAngularJson(host, context, options);
-//     await modifyTsConfig(host);
-//     await modifyProtractorConfig(host, project.root);
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Default,
-//       name: '@skyux/config',
-//       version: '^4.4.0',
-//       overwrite: true
-//     });
-
-//     addPackageJsonDependency(tree, {
-//       type: NodeDependencyType.Dev,
-//       name: '@skyux-sdk/e2e',
-//       version: '^4.0.0',
-//       overwrite: true
-//     });
-
-//     context.addTask(new NodePackageInstallTask());
-
-//     return createAppFiles(tree, project);
-//   };
-// }
+    return createAppFiles(project);
+  };
+}

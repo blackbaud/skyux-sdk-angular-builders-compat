@@ -1,5 +1,5 @@
 /.nyc_output
-/.builders-e2e-*
+/builders-test-*
 /coverage
 /dist
 /node_modules
