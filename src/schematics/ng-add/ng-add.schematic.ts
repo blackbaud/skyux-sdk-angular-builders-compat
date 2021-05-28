@@ -25,15 +25,35 @@ async function modifyAngularJson(
   host: workspaces.WorkspaceHost
 ): Promise<void> {
   const angularJson = await readJson(host, 'angular.json');
-  for (const project in angularJson.projects) {
-    angularJson.projects[project].architect.lint = {
+
+  const hasRootApplication = await host.isDirectory('src');
+
+  if (hasRootApplication) {
+    const defaultProject = angularJson.defaultProject;
+    angularJson.projects[defaultProject].architect.lint = {
       builder: '@angular-devkit/build-angular:tslint',
       options: {
         tsConfig: ['tsconfig.app.json', 'tsconfig.spec.json'],
         exclude: ['**/node_modules/**']
       }
     };
+  } else {
+    for (const project in angularJson.projects) {
+      const fileSuffix =
+        angularJson.projects[project].projectType === 'library' ? 'lib' : 'app';
+      angularJson.projects[project].architect.lint = {
+        builder: '@angular-devkit/build-angular:tslint',
+        options: {
+          tsConfig: [
+            `projects/${project}/tsconfig.${fileSuffix}.json`,
+            `projects/${project}/tsconfig.spec.json`
+          ],
+          exclude: ['**/node_modules/**']
+        }
+      };
+    }
   }
+
   await host.writeFile(
     'angular.json',
     JSON.stringify(angularJson, undefined, 2)
