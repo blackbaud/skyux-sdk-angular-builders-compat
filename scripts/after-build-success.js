@@ -41,7 +41,13 @@ function copyFilesToDist() {
 }
 
 function mergeBuilderSchemas() {
-  const schemaConfigs = [];
+  const schemaConfigs = [
+    {
+      baseSchemaPath:
+        './node_modules/@angular-devkit/build-angular/src/protractor/schema.json',
+      schemaPath: './dist/src/builders/protractor/schema.ext.json'
+    }
+  ];
 
   schemaConfigs.forEach((config) => {
     const schemaJson = fs.readJsonSync(path.resolve(config.schemaPath));
