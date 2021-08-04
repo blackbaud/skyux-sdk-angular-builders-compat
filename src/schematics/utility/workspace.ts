@@ -22,7 +22,7 @@ function createHost(tree: Tree): workspaces.WorkspaceHost {
     },
     async isFile(path: string): Promise<boolean> {
       return tree.exists(path);
-    },
+    }
   };
 }
 
@@ -38,17 +38,12 @@ export async function getWorkspace(tree: Tree): Promise<{
   return { host, workspace };
 }
 
-export async function getDefaultProject(
-  workspace: workspaces.WorkspaceDefinition
-): Promise<{ project: workspaces.ProjectDefinition; projectName: string }> {
-  return getProject(workspace, workspace.extensions.defaultProject as string);
-}
-
 export async function getProject(
   workspace: workspaces.WorkspaceDefinition,
   projectName: string
 ): Promise<{ project: workspaces.ProjectDefinition; projectName: string }> {
   const project = workspace.projects.get(projectName);
+  /* istanbul ignore next */
   if (!project) {
     throw new SchematicsException(
       `The "${projectName}" project is not defined in angular.json. Provide a valid project name.`
@@ -72,24 +67,5 @@ export function updateWorkspace(
 
     // Update the workspace config with any changes.
     await workspaces.writeWorkspace(workspace, host);
-  };
-}
-
-/**
- * Deletes a directory from the virtual file system.
- * @param dirPath The path of the directory, relative to the project's root.
- */
-export function deleteDirectory(
-  project: workspaces.ProjectDefinition,
-  dirPath: string
-): Rule {
-  // Remove forward slash, if it exists.
-  dirPath = dirPath.replace(/^((\.)?\/)/, '');
-
-  return (tree) => {
-    const dir = tree.getDir(`${project.root}/${dirPath}`);
-    dir.visit((file) => {
-      tree.delete(file);
-    });
   };
 }

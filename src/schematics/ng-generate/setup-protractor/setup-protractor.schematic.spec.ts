@@ -34,6 +34,22 @@ describe('Setup protractor schematic', () => {
       .toPromise();
   }
 
+  it('should update workspace config', async () => {
+    const updatedTree = await runSchematic();
+    const angularJson = JSON.parse(updatedTree.readContent('angular.json'));
+
+    expect(angularJson.projects[defaultProjectName].architect.e2e).toEqual({
+      builder: '@skyux-sdk/angular-builders-compat:protractor',
+      options: {
+        protractorConfig: 'e2e/protractor.conf.js',
+        devServerTarget: 'foo-app:serve'
+      },
+      configurations: {
+        production: { devServerTarget: 'foo-app:serve:production' }
+      }
+    });
+  });
+
   it('should add dev dependencies', async () => {
     const updatedTree = await runSchematic();
 
@@ -46,7 +62,7 @@ describe('Setup protractor schematic', () => {
     );
   });
 
-  it('should add e2e folder and config', async () => {
+  it('should add e2e folder and configs', async () => {
     const updatedTree = await runSchematic();
 
     expect(updatedTree.exists('e2e/protractor.conf.js')).toEqual(true);

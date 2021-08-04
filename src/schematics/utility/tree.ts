@@ -6,6 +6,7 @@ import { Tree } from '@angular-devkit/schematics';
  */
 export function readRequiredFile(tree: Tree, filePath: string): string {
   const data = tree.read(filePath);
+  /* istanbul ignore next */
   if (!data) {
     throw new Error(
       `The file '${filePath}' was expected to exist but was not found.`
