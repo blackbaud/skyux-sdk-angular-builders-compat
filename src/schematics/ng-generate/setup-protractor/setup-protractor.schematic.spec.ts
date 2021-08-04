@@ -1,0 +1,74 @@
+import {
+  SchematicTestRunner,
+  UnitTestTree
+} from '@angular-devkit/schematics/testing';
+
+import path from 'path';
+
+import { createTestApp, createTestLibrary } from '../../testing/scaffold';
+
+describe('Setup protractor schematic', () => {
+  const collectionPath = path.join(__dirname, '../../../../collection.json');
+  const defaultProjectName = 'foo-app';
+  const schematicName = 'setup-protractor';
+
+  const runner = new SchematicTestRunner('generate', collectionPath);
+
+  let tree: UnitTestTree;
+
+  beforeEach(async () => {
+    tree = await createTestApp(runner, {
+      defaultProjectName
+    });
+  });
+
+  function runSchematic(projectName?: string): Promise<UnitTestTree> {
+    return runner
+      .runSchematicAsync(
+        schematicName,
+        {
+          project: projectName || defaultProjectName
+        },
+        tree
+      )
+      .toPromise();
+  }
+
+  it('should add dev dependencies', async () => {
+    const updatedTree = await runSchematic();
+
+    const packageJson = JSON.parse(updatedTree.readContent('package.json'));
+    expect(packageJson.devDependencies).toEqual(
+      jasmine.objectContaining({
+        protractor: '^7.0.0',
+        'jasmine-spec-reporter': '^5.0.0'
+      })
+    );
+  });
+
+  it('should add e2e folder and config', async () => {
+    const updatedTree = await runSchematic();
+
+    expect(updatedTree.exists('e2e/protractor.conf.js')).toEqual(true);
+    expect(updatedTree.exists('e2e/tsconfig.json')).toEqual(true);
+    expect(updatedTree.exists('e2e/src/app.po.ts')).toEqual(true);
+  });
+
+  it('should move existing e2e specs to src directory', async () => {
+    tree.create('e2e/foobar.e2e-spec.ts', '');
+    tree.create('e2e/src/foobar-1.e2e-spec.ts', '');
+
+    const updatedTree = await runSchematic();
+
+    expect(updatedTree.exists('e2e/foobar.e2e-spec.ts')).toEqual(false);
+    expect(updatedTree.exists('e2e/src/foobar.e2e-spec.ts')).toEqual(true);
+  });
+
+  it('should throw an error if added to library projects', async () => {
+    tree = await createTestLibrary(runner, { name: 'my-lib' });
+
+    await expectAsync(runSchematic('my-lib')).toBeRejectedWithError(
+      "The project 'my-lib' must be of type 'application'."
+    );
+  });
+});

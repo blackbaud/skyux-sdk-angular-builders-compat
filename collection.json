@@ -5,6 +5,16 @@
       "description": "Add @skyux-sdk/angular-builders-compat to your project.",
       "factory": "./src/schematics/ng-add/ng-add.schematic#ngAdd",
       "schema": "./src/schematics/ng-add/schema.json"
+    },
+    "setup-protractor": {
+      "description": "Setup the Protractor builder for your project.",
+      "factory": "./src/schematics/ng-generate/setup-protractor/setup-protractor.schematic",
+      "schema": "./src/schematics/ng-generate/setup-protractor/schema.json"
+    },
+    "setup-tslint": {
+      "description": "Setup the TSLint builder for your project.",
+      "factory": "./src/schematics/ng-generate/setup-tslint/setup-tslint.schematic",
+      "schema": "./src/schematics/ng-generate/setup-tslint/schema.json"
     }
   }
 }

@@ -25,23 +25,42 @@
   },
   "peerDependencies": {
     "@angular-devkit/build-angular": "^12.0.0",
-    "jasmine-spec-reporter": "^6.0.0",
-    "protractor": "^7.0.0"
+    "codelyzer": "^6.0.0",
+    "jasmine-spec-reporter": "^5.0.0",
+    "protractor": "^7.0.0",
+    "tslint": "~6.1.0",
+    "tslint-jasmine-rules": "^1.6.1"
+  },
+  "peerDependenciesMeta": {
+    "codelyzer": {
+      "optional": true
+    },
+    "jasmine-spec-reporter": {
+      "optional": true
+    },
+    "protractor": {
+      "optional": true
+    },
+    "tslint": {
+      "optional": true
+    },
+    "tslint-jasmine-rules": {
+      "optional": true
+    }
   },
   "dependencies": {
     "chromedriver-version-matcher": "^1.1.7",
     "cross-spawn": "7.0.3",
     "lodash.merge": "4.6.2",
-    "lodash.mergewith": "4.6.2",
-    "tslint-jasmine-rules": "1.6.1"
+    "lodash.mergewith": "4.6.2"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "12.0.0",
-    "@angular-devkit/schematics": "12.0.0",
-    "@angular/compiler": "12.0.1",
-    "@angular/compiler-cli": "12.0.1",
+    "@angular-devkit/build-angular": "~12.1.4",
+    "@angular-devkit/schematics": "~12.1.4",
+    "@angular/compiler": "~12.1.4",
+    "@angular/compiler-cli": "~12.1.4",
     "@istanbuljs/nyc-config-typescript": "1.0.1",
-    "@schematics/angular": "12.0.2",
+    "@schematics/angular": "~12.1.4",
     "@trivago/prettier-plugin-sort-imports": "2.0.2",
     "@types/cross-spawn": "6.0.2",
     "@types/jasmine": "3.6.9",
@@ -56,7 +75,7 @@
     "eslint-plugin-prettier": "3.4.0",
     "fs-extra": "10.0.0",
     "jasmine": "3.6.4",
-    "jasmine-spec-reporter": "^7.0.0",
+    "jasmine-spec-reporter": "^5.0.2",
     "mock-require": "3.0.3",
     "nyc": "15.1.0",
     "prettier": "2.3.0",
