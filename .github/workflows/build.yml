@@ -64,5 +64,5 @@ jobs:
         working-directory: builders-e2e-app
         run: |
           ng version
-          ng lint
+          ng lint --fix
           ng e2e
