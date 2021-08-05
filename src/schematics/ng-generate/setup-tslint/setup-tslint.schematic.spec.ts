@@ -54,7 +54,7 @@ describe('Setup protractor schematic', () => {
     expect(angularJson.projects[defaultProjectName].architect.lint).toEqual({
       builder: '@angular-devkit/build-angular:tslint',
       options: {
-        tsConfig: ['/tsconfig.app.json', '/tsconfig.spec.json'],
+        tsConfig: ['tsconfig.app.json', 'tsconfig.spec.json'],
         exclude: ['**/node_modules/**']
       }
     });

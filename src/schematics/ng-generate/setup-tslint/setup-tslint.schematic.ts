@@ -23,6 +23,10 @@ import {
 
 import { SetupTSLintSchema } from './schema';
 
+function removeLeadingSlash(str: string): string {
+  return str.replace(/^\/+/, '');
+}
+
 function updateWorkspaceConfig(options: SetupTSLintSchema): Rule {
   return () => {
     return updateWorkspace((workspace) => {
@@ -35,8 +39,8 @@ function updateWorkspaceConfig(options: SetupTSLintSchema): Rule {
         builder: '@angular-devkit/build-angular:tslint',
         options: {
           tsConfig: [
-            `${project.root}/tsconfig.${fileSuffix}.json`,
-            `${project.root}/tsconfig.spec.json`
+            removeLeadingSlash(`${project.root}/tsconfig.${fileSuffix}.json`),
+            removeLeadingSlash(`${project.root}/tsconfig.spec.json`)
           ],
           exclude: ['**/node_modules/**']
         }
