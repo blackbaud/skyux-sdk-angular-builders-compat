@@ -55,8 +55,13 @@ jobs:
           ng add ./.skyux-sdk-angular-builders-dist --skip-confirmation
           rm -r node_modules/@skyux-sdk/angular-builders-compat
           mv ../dist node_modules/@skyux-sdk/angular-builders-compat
+      - name: Run generate schematics
+        run: |
+          ng generate @skyux-sdk/angular-builders-compat:setup-tslint
+          ng generate @skyux-sdk/angular-builders-compat:setup-protractor
       - name: Run Angular CLI commands
         working-directory: builders-e2e-app
         run: |
           ng version
           ng lint
+          ng e2e
