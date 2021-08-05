@@ -9,6 +9,7 @@ import {
   Rule,
   url
 } from '@angular-devkit/schematics';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import {
   addPackageJsonDependency,
   NodeDependencyType
@@ -58,12 +59,12 @@ function generateTemplateFiles(options: SetupTSLintSchema): Rule {
       move(movePath)
     ]);
 
-    return mergeWith(templateSource, MergeStrategy.Default);
+    return mergeWith(templateSource, MergeStrategy.Overwrite);
   };
 }
 
 export default function setupTslint(options: SetupTSLintSchema): Rule {
-  return (tree) => {
+  return (tree, context) => {
     addPackageJsonDependency(tree, {
       type: NodeDependencyType.Dev,
       name: 'codelyzer',
@@ -87,7 +88,10 @@ export default function setupTslint(options: SetupTSLintSchema): Rule {
 
     return chain([
       updateWorkspaceConfig(options),
-      generateTemplateFiles(options)
+      generateTemplateFiles(options),
+      () => {
+        context.addTask(new NodePackageInstallTask());
+      }
     ]);
   };
 }

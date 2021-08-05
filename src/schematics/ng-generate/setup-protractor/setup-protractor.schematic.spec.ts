@@ -5,6 +5,7 @@ import {
 
 import path from 'path';
 
+import { SkyuxVersions } from '../../../shared/skyux-versions';
 import { createTestApp, createTestLibrary } from '../../testing/scaffold';
 
 describe('Setup protractor schematic', () => {
@@ -56,6 +57,7 @@ describe('Setup protractor schematic', () => {
     const packageJson = JSON.parse(updatedTree.readContent('package.json'));
     expect(packageJson.devDependencies).toEqual(
       jasmine.objectContaining({
+        '@skyux-sdk/e2e': SkyuxVersions.SdkE2e,
         protractor: '^7.0.0',
         'jasmine-spec-reporter': '^5.0.0'
       })

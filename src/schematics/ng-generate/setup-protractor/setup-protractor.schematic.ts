@@ -10,11 +10,13 @@ import {
   SchematicsException,
   url
 } from '@angular-devkit/schematics';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import {
   addPackageJsonDependency,
   NodeDependencyType
 } from '@schematics/angular/utility/dependencies';
 
+import { SkyuxVersions } from '../../../shared/skyux-versions';
 import {
   getProject,
   getWorkspace,
@@ -62,7 +64,7 @@ function generateTemplateFiles(options: SetupProtractorSchema): Rule {
       move(movePath)
     ]);
 
-    return mergeWith(templateSource, MergeStrategy.Default);
+    return mergeWith(templateSource, MergeStrategy.Overwrite);
   };
 }
 
@@ -77,7 +79,14 @@ function moveExistingE2eSpecs(_options: SetupProtractorSchema): Rule {
 }
 
 export default function setupProtractor(options: SetupProtractorSchema): Rule {
-  return (tree) => {
+  return (tree, context) => {
+    addPackageJsonDependency(tree, {
+      type: NodeDependencyType.Dev,
+      name: '@skyux-sdk/e2e',
+      version: SkyuxVersions.SdkE2e,
+      overwrite: true
+    });
+
     addPackageJsonDependency(tree, {
       type: NodeDependencyType.Dev,
       name: 'jasmine-spec-reporter',
@@ -95,7 +104,10 @@ export default function setupProtractor(options: SetupProtractorSchema): Rule {
     return chain([
       updateWorkspaceConfig(options),
       generateTemplateFiles(options),
-      moveExistingE2eSpecs(options)
+      moveExistingE2eSpecs(options),
+      () => {
+        context.addTask(new NodePackageInstallTask());
+      }
     ]);
   };
 }
