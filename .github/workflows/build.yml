@@ -56,6 +56,7 @@ jobs:
           rm -r node_modules/@skyux-sdk/angular-builders-compat
           mv ../dist node_modules/@skyux-sdk/angular-builders-compat
       - name: Run generate schematics
+        working-directory: builders-e2e-app
         run: |
           ng generate @skyux-sdk/angular-builders-compat:setup-tslint
           ng generate @skyux-sdk/angular-builders-compat:setup-protractor
