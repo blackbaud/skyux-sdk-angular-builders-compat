@@ -1,4 +1,10 @@
 {
   "$schema": "./node_modules/@angular-devkit/architect/src/builders-schema.json",
-  "builders": {}
+  "builders": {
+    "protractor": {
+      "implementation": "./src/builders/protractor/protractor",
+      "schema": "./src/builders/protractor/schema.ext.json",
+      "description": "SKY UX builder for `ng e2e`"
+    }
+  }
 }

@@ -22,7 +22,12 @@ function copyFilesToDist() {
     ['CHANGELOG.md'],
     ['package.json'],
     ['builders.json'],
-    ['collection.json']
+    ['collection.json'],
+    ['src/builders/protractor/schema.ext.json'],
+    ['src/schematics/ng-generate/setup-protractor/files'],
+    ['src/schematics/ng-generate/setup-protractor/schema.json'],
+    ['src/schematics/ng-generate/setup-tslint/files'],
+    ['src/schematics/ng-generate/setup-tslint/schema.json']
   ];
 
   pathsToCopy.forEach((pathArr) => {
@@ -41,7 +46,13 @@ function copyFilesToDist() {
 }
 
 function mergeBuilderSchemas() {
-  const schemaConfigs = [];
+  const schemaConfigs = [
+    {
+      baseSchemaPath:
+        './node_modules/@angular-devkit/build-angular/src/protractor/schema.json',
+      schemaPath: './dist/src/builders/protractor/schema.ext.json'
+    }
+  ];
 
   schemaConfigs.forEach((config) => {
     const schemaJson = fs.readJsonSync(path.resolve(config.schemaPath));
