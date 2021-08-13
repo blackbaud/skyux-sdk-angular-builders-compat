@@ -72,16 +72,6 @@ describe('Setup protractor schematic', () => {
     expect(updatedTree.exists('e2e/src/app.po.ts')).toEqual(true);
   });
 
-  it('should move existing e2e specs to src directory', async () => {
-    tree.create('e2e/foobar.e2e-spec.ts', '');
-    tree.create('e2e/src/foobar-1.e2e-spec.ts', '');
-
-    const updatedTree = await runSchematic();
-
-    expect(updatedTree.exists('e2e/foobar.e2e-spec.ts')).toEqual(false);
-    expect(updatedTree.exists('e2e/src/foobar.e2e-spec.ts')).toEqual(true);
-  });
-
   it('should throw an error if added to library projects', async () => {
     tree = await createTestLibrary(runner, { name: 'my-lib' });
 
