@@ -75,3 +75,60 @@ jobs:
           ng version
           ng lint --fix
           ng e2e --protractor-config=./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/protractor.angular-cli.conf.js
+  e2e-lib:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: |
+          npm i -g @angular/cli@12 @skyux-sdk/cli
+          npm ci
+      - name: Install SKY UX certificate
+        run: |
+          skyux certs install
+      - name: Create new Angular CLI workspace
+        run: |
+          ng new builders-e2e-lib --create-application=false
+      - name: Create library
+        working-directory: builders-e2e-lib
+        run: |
+          ng g library my-lib
+      - name: Create showcase app
+        working-directory: builders-e2e-lib
+        run: |
+          ng g application my-lib-showcase
+      - name: Generate default protractor setup
+        working-directory: builders-e2e-lib
+        run: |
+          ng g @schematics/angular:e2e --related-app-name my-lib-showcase
+          npm i
+      - name: Build `@skyux-sdk/angular-builders-compat`
+        run: |
+          node_modules/.bin/tsc -p tsconfig.build.json
+          node ./scripts/after-build-success.js --test-lib-directory builders-e2e-lib
+      - name: Add `@skyux-sdk/angular-builders-compat`
+        working-directory: builders-e2e-lib
+        run: |
+          ng add ./.skyux-sdk-angular-builders-dist --skip-confirmation
+          rm -r node_modules/@skyux-sdk/angular-builders-compat
+          mv ../dist node_modules/@skyux-sdk/angular-builders-compat
+      - name: Run generate schematics
+        working-directory: builders-e2e-lib
+        run: |
+          ng generate @skyux-sdk/angular-builders-compat:setup-tslint --project=my-lib-showcase
+          ng generate @skyux-sdk/angular-builders-compat:setup-protractor --project=my-lib-showcase
+      - name: Install pipeline settings
+        working-directory: builders-e2e-lib
+        run: |
+          npm i --no-save blackbaud/skyux-sdk-pipeline-settings#angular-cli-support
+      - name: Run Angular CLI commands
+        working-directory: builders-e2e-lib
+        run: |
+          ng version
+          ng lint --fix
+          ng e2e --protractor-config=./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/protractor.angular-cli.conf.js
