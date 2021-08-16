@@ -39,9 +39,6 @@ function copyFilesToDist() {
       throw `File not found: ${sourcePath}`;
     }
   });
-
-  fs.copySync('dist', path.join(TEST_APP_DIR, TEST_DIST));
-  fs.copySync('dist', path.join(TEST_LIB_DIR, TEST_DIST));
 }
 
 function mergeBuilderSchemas() {
@@ -73,6 +70,12 @@ function mergeBuilderSchemas() {
   });
 }
 
+function copyDistToTestProjects() {
+  fs.copySync('dist', path.join(TEST_APP_DIR, TEST_DIST));
+  fs.copySync('dist', path.join(TEST_LIB_DIR, TEST_DIST));
+}
+
 cleanDist();
 copyFilesToDist();
 mergeBuilderSchemas();
+copyDistToTestProjects();

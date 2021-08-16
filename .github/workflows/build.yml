@@ -50,6 +50,7 @@ jobs:
         working-directory: builders-e2e-app
         run: |
           ng g @schematics/angular:e2e --related-app-name builders-e2e-app
+          npm i
       - name: Build `@skyux-sdk/angular-builders-compat`
         run: |
           node_modules/.bin/tsc -p tsconfig.build.json
@@ -70,4 +71,4 @@ jobs:
         run: |
           ng version
           ng lint --fix
-          ng e2e --protractorConfig=./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/protractor.angular-cli.conf.js
+          ng e2e --protractor-config=./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/protractor.angular-cli.conf.js
