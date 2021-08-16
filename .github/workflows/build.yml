@@ -69,4 +69,4 @@ jobs:
         run: |
           ng version
           ng lint --fix
-          ng e2e
+          ng e2e --browsers=ChromeHeadless --watch=false
