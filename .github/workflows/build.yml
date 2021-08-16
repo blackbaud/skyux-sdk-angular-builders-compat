@@ -44,7 +44,11 @@ jobs:
           skyux certs install
       - name: Create new Angular CLI application
         run: |
-          ng new builders-e2e-app --legacy-browsers --routing --strict --style=scss
+          ng new builders-e2e-app --routing --strict --style=scss
+      - name: Generate default protractor setup
+        working-directory: builders-e2e-app
+        run: |
+          ng g @schematics/angular:e2e --related-app-name builders-e2e-app
       - name: Build `@skyux-sdk/angular-builders-compat`
         run: |
           node_modules/.bin/tsc -p tsconfig.build.json
