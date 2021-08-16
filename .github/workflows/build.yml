@@ -38,7 +38,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm i -g @angular/cli@12 @skyux-sdk/cli
-          npm i --no-save blackbaud/skyux-sdk-pipeline-settings#angular-cli-support
           npm ci
       - name: Install SKY UX certificate
         run: |
@@ -66,6 +65,10 @@ jobs:
         run: |
           ng generate @skyux-sdk/angular-builders-compat:setup-tslint
           ng generate @skyux-sdk/angular-builders-compat:setup-protractor
+      - name: Install pipeline settings
+        working-directory: builders-e2e-app
+        run: |
+          npm i --no-save blackbaud/skyux-sdk-pipeline-settings#angular-cli-support
       - name: Run Angular CLI commands
         working-directory: builders-e2e-app
         run: |
