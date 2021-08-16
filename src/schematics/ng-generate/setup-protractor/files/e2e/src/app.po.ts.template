@@ -1,9 +1,0 @@
-import { SkyHostBrowser } from '@skyux-sdk/e2e';
-
-import { by, element } from 'protractor';
-
-export class AppPage {
-  async navigateTo(path: string = ''): Promise<unknown> {
-    return SkyHostBrowser.get(path);
-  }
-}

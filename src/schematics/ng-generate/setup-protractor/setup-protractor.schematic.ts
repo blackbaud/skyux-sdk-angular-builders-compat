@@ -1,15 +1,4 @@
-import { normalize } from '@angular-devkit/core';
-import {
-  apply,
-  applyTemplates,
-  chain,
-  MergeStrategy,
-  mergeWith,
-  move,
-  Rule,
-  SchematicsException,
-  url
-} from '@angular-devkit/schematics';
+import { chain, Rule, SchematicsException } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import {
   addPackageJsonDependency,
@@ -17,11 +6,7 @@ import {
 } from '@schematics/angular/utility/dependencies';
 
 import { SkyuxVersions } from '../../../shared/skyux-versions';
-import {
-  getProject,
-  getWorkspace,
-  updateWorkspace
-} from '../../utility/workspace';
+import { updateWorkspace } from '../../utility/workspace';
 
 import { SetupProtractorSchema } from './schema';
 
@@ -36,35 +21,15 @@ function updateWorkspaceConfig(options: SetupProtractorSchema): Rule {
         );
       }
 
-      project.targets.set('e2e', {
-        builder: '@skyux-sdk/angular-builders-compat:protractor',
-        options: {
-          protractorConfig: 'e2e/protractor.conf.js',
-          devServerTarget: `${options.project}:serve`
-        },
-        configurations: {
-          production: {
-            devServerTarget: `${options.project}:serve:production`
-          }
-        }
-      });
+      const target = project.targets.get('e2e');
+      if (!target) {
+        throw new SchematicsException(
+          `The project "${options.project}" did not have a valid e2e target defined in angular.json. Run \`ng generate @schematics/angular:e2e --related-app-name my-app\` and then try again.`
+        );
+      }
+
+      target.builder = '@skyux-sdk/angular-builders-compat:protractor';
     });
-  };
-}
-
-function generateTemplateFiles(options: SetupProtractorSchema): Rule {
-  return async (tree) => {
-    const { workspace } = await getWorkspace(tree);
-    const { project } = await getProject(workspace, options.project);
-
-    const movePath = normalize(project.root);
-
-    const templateSource = apply(url('./files'), [
-      applyTemplates({}),
-      move(movePath)
-    ]);
-
-    return mergeWith(templateSource, MergeStrategy.Overwrite);
   };
 }
 
@@ -77,23 +42,8 @@ export default function setupProtractor(options: SetupProtractorSchema): Rule {
       overwrite: true
     });
 
-    addPackageJsonDependency(tree, {
-      type: NodeDependencyType.Dev,
-      name: 'jasmine-spec-reporter',
-      version: '^5.0.0',
-      overwrite: false
-    });
-
-    addPackageJsonDependency(tree, {
-      type: NodeDependencyType.Dev,
-      name: 'protractor',
-      version: '^7.0.0',
-      overwrite: false
-    });
-
     return chain([
       updateWorkspaceConfig(options),
-      generateTemplateFiles(options),
       () => {
         context.addTask(new NodePackageInstallTask());
       }
