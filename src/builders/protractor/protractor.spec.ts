@@ -2,19 +2,14 @@ import * as angularArchitect from '@angular-devkit/architect';
 import * as buildAngular from '@angular-devkit/build-angular';
 
 import mock from 'mock-require';
-import path from 'path';
 
-import {
-  clearProtractorEnvironmentConfig,
-  getProtractorEnvironmentConfig
-} from './protractor-environment-utils';
 import { SkyuxProtractorBuilderOptions } from './protractor-options';
 
 describe('protractor builder', () => {
   let createBuilderSpy: jasmine.Spy;
   let executeProtractorBuilderSpy: jasmine.Spy;
   let updateChromeDriverSpy: jasmine.Spy;
-  let options: SkyuxProtractorBuilderOptions;
+  let options: Partial<SkyuxProtractorBuilderOptions>;
   let mockSpecFiles: string[];
 
   beforeEach(() => {
@@ -37,7 +32,7 @@ describe('protractor builder', () => {
 
     executeProtractorBuilderSpy = jasmine
       .createSpy('executeProtractorBuilder')
-      .and.callFake((_options: any, _context: any, _transforms: any) => {
+      .and.callFake(() => {
         return Promise.resolve({
           success: true
         });
@@ -68,7 +63,6 @@ describe('protractor builder', () => {
 
   afterEach(() => {
     mock.stopAll();
-    clearProtractorEnvironmentConfig();
   });
 
   async function runBuilder() {
@@ -79,24 +73,9 @@ describe('protractor builder', () => {
     await runBuilder();
 
     expect(options).toEqual({
-      protractorConfig: path.resolve(__dirname, 'protractor.default.conf.js'),
-      skyuxHeadless: false,
+      protractorConfig: 'protractor.conf.js',
       webdriverUpdate: false
     });
-  });
-
-  it('should save builder options as an environment variable', async () => {
-    options.skyuxHeadless = true;
-    await runBuilder();
-    expect(
-      getProtractorEnvironmentConfig()?.builderOptions?.skyuxHeadless
-    ).toBeTrue();
-  });
-
-  it('should abort if no specs', async () => {
-    mockSpecFiles = [];
-    await runBuilder();
-    expect(executeProtractorBuilderSpy).not.toHaveBeenCalled();
   });
 
   it('should update webdriver', async () => {

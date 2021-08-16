@@ -21,6 +21,11 @@ describe('Setup protractor schematic', () => {
     tree = await createTestApp(runner, {
       defaultProjectName
     });
+
+    // Add an e2e section.
+    const angularJson = JSON.parse(tree.readContent('angular.json'));
+    angularJson.projects[defaultProjectName].architect.e2e = {};
+    tree.overwrite('angular.json', JSON.stringify(angularJson));
   });
 
   function runSchematic(projectName?: string): Promise<UnitTestTree> {
@@ -37,18 +42,12 @@ describe('Setup protractor schematic', () => {
 
   it('should update workspace config', async () => {
     const updatedTree = await runSchematic();
+
     const angularJson = JSON.parse(updatedTree.readContent('angular.json'));
 
-    expect(angularJson.projects[defaultProjectName].architect.e2e).toEqual({
-      builder: '@skyux-sdk/angular-builders-compat:protractor',
-      options: {
-        protractorConfig: 'e2e/protractor.conf.js',
-        devServerTarget: 'foo-app:serve'
-      },
-      configurations: {
-        production: { devServerTarget: 'foo-app:serve:production' }
-      }
-    });
+    expect(
+      angularJson.projects[defaultProjectName].architect.e2e.builder
+    ).toEqual('@skyux-sdk/angular-builders-compat:protractor');
   });
 
   it('should add dev dependencies', async () => {
@@ -57,19 +56,9 @@ describe('Setup protractor schematic', () => {
     const packageJson = JSON.parse(updatedTree.readContent('package.json'));
     expect(packageJson.devDependencies).toEqual(
       jasmine.objectContaining({
-        '@skyux-sdk/e2e': SkyuxVersions.SdkE2e,
-        protractor: '^7.0.0',
-        'jasmine-spec-reporter': '^5.0.0'
+        '@skyux-sdk/e2e': SkyuxVersions.SdkE2e
       })
     );
-  });
-
-  it('should add e2e folder and configs', async () => {
-    const updatedTree = await runSchematic();
-
-    expect(updatedTree.exists('e2e/protractor.conf.js')).toEqual(true);
-    expect(updatedTree.exists('e2e/tsconfig.json')).toEqual(true);
-    expect(updatedTree.exists('e2e/src/app.po.ts')).toEqual(true);
   });
 
   it('should throw an error if added to library projects', async () => {
@@ -77,6 +66,16 @@ describe('Setup protractor schematic', () => {
 
     await expectAsync(runSchematic('my-lib')).toBeRejectedWithError(
       "The project 'my-lib' must be of type 'application'."
+    );
+  });
+
+  it('should throw an error if e2e target is not set', async () => {
+    const angularJson = JSON.parse(tree.readContent('angular.json'));
+    delete angularJson.projects[defaultProjectName].architect.e2e;
+    tree.overwrite('angular.json', JSON.stringify(angularJson));
+
+    await expectAsync(runSchematic()).toBeRejectedWithError(
+      'The project "foo-app" did not have a valid e2e target defined in angular.json. Run `ng generate @schematics/angular:e2e --related-app-name my-app` and then try again.'
     );
   });
 });
