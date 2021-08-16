@@ -128,6 +128,8 @@ jobs:
           npm i --no-save blackbaud/skyux-sdk-pipeline-settings#angular-cli-support
       - name: Run Angular CLI commands
         working-directory: builders-e2e-lib
+        env:
+          PROJECT_ROOT: projects/my-lib-showcase
         run: |
           ng version
           ng lint --fix
