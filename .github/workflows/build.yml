@@ -70,4 +70,4 @@ jobs:
         run: |
           ng version
           ng lint --fix
-          ng e2e --protractor-config=./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/protractor.angular-cli.conf.js
+          ng e2e --protractorConfig=./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/protractor.angular-cli.conf.js
