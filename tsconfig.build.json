@@ -1,10 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "include": [
-    "index.ts",
-    "skyuxconfig-schema.json",
-    "src/**/*.json",
-    "config/**/*.json"
-  ],
+  "include": ["index.ts", "src/**/*.json", "config/**/*.json"],
   "exclude": ["node_modules"]
 }

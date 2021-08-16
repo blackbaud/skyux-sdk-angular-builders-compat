@@ -68,16 +68,6 @@ function generateTemplateFiles(options: SetupProtractorSchema): Rule {
   };
 }
 
-function moveExistingE2eSpecs(_options: SetupProtractorSchema): Rule {
-  return (tree) => {
-    tree.getDir('e2e').subfiles.forEach((file) => {
-      if (file.endsWith('.e2e-spec.ts')) {
-        tree.rename(`e2e/${file}`, `e2e/src/${file}`);
-      }
-    });
-  };
-}
-
 export default function setupProtractor(options: SetupProtractorSchema): Rule {
   return (tree, context) => {
     addPackageJsonDependency(tree, {
@@ -104,7 +94,6 @@ export default function setupProtractor(options: SetupProtractorSchema): Rule {
     return chain([
       updateWorkspaceConfig(options),
       generateTemplateFiles(options),
-      moveExistingE2eSpecs(options),
       () => {
         context.addTask(new NodePackageInstallTask());
       }
