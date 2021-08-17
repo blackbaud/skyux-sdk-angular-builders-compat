@@ -121,16 +121,13 @@ jobs:
         working-directory: builders-e2e-lib
         run: |
           ng generate @skyux-sdk/angular-builders-compat:setup-tslint --project=my-lib-showcase
-          ng generate @skyux-sdk/angular-builders-compat:setup-protractor --project=my-lib-showcase
       - name: Install pipeline settings
         working-directory: builders-e2e-lib
         run: |
           npm i --no-save blackbaud/skyux-sdk-pipeline-settings#angular-cli-support
       - name: Run Angular CLI commands
         working-directory: builders-e2e-lib
-        env:
-          PROJECT_ROOT: projects/my-lib-showcase
         run: |
           ng version
           ng lint --fix
-          ng e2e --protractor-config=./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/protractor.angular-cli.conf.js
+          node ./node_modules/@skyux-sdk/pipeline-settings/platforms/gh-actions/protractor/test-runner.js --project-root=projects/my-lib-showcase
